@@ -28,7 +28,6 @@ public class FacilityPropertyDialog extends javax.swing.JDialog {
         initComponents();
     }
 
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -102,7 +101,7 @@ public class FacilityPropertyDialog extends javax.swing.JDialog {
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel7.setText("فاصله تفکیک مکانی");
 
-        facilityOne.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "بیش از نه متر", "بین چهار و نیم تا نه متر", "بین دو و نیم تا چهارونیم", "بین 1.2 تا 2.5", "بین 0.75 تا 1.2 " }));
+        facilityOne.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "بیش از نه متر", "بین 4.5 تا  9متر", "بین 2.5  تا 4.5 متر", "بین 1.2 تا 2.5 متر", "بین 0.75 تا  1.2  متر", "بین 0.4 تا 0.75 متر", "بین 0.2 تا 0.4 متر", "بین 0.1 تا 0.2 متر", "کمتر از 0.1 متر" }));
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel15.setText("ویژگی ها");
@@ -237,17 +236,27 @@ public class FacilityPropertyDialog extends javax.swing.JDialog {
         facilityEndDate.setEditor(new JSpinner.DateEditor(facilityEndDate, "yyyy/MM/dd hh:mm"));
         facilityStartDate.setEditor(new JSpinner.DateEditor(facilityStartDate, "yyyy/MM/dd hh:mm"));
 
-        String date = EarthUtil.convertJulianToPersianForUi(new Date());
+        String startDate = EarthUtil.convertJulianToPersianForUi(currentFacility.getStartDate());
+        String currentDate = EarthUtil.convertJulianToPersianForUi(new Date());
+        String endDate = EarthUtil.convertJulianToPersianForUi(currentFacility.getEndDate());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        Date currentParsedDate = null;
+        Date startParsedDate = null;
+        Date endParsedDate = null;
         try {
-            currentParsedDate = dateFormat.parse(date);
+            startParsedDate = dateFormat.parse(startDate);
+            endParsedDate = dateFormat.parse(endDate);
         } catch (ParseException e) {
-            JOptionPane.showMessageDialog(null, "خطایی در پردازش شما رخ داده است.", "نا موفق", JOptionPane.ERROR_MESSAGE);
+            try {
+                startParsedDate = dateFormat.parse(currentDate);
+                endParsedDate = dateFormat.parse(currentDate);
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+            }
+
         }
 
-        facilityStartDate.getModel().setValue(currentParsedDate);
-        facilityEndDate.getModel().setValue(currentParsedDate);
+        facilityStartDate.getModel().setValue(startParsedDate);
+        facilityEndDate.getModel().setValue(endParsedDate);
     }
 
     public Facility getCurrentFacility() {

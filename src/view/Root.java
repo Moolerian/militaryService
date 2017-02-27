@@ -912,11 +912,11 @@ public class Root extends JFrame implements Runnable {
     }
 
     private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        JOptionPane.showMessageDialog(this, "ذخیره سازی انجام شد", "پیغام", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "این قسمت در دست ساخت میباشد", "پیغام", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void SaveActionPerformed(java.awt.event.ActionEvent evt) {
-        JOptionPane.showMessageDialog(this, "ذخیره سازی انجام شد", "پیغام", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "این قسمت در دست ساخت میباشد", "پیغام", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {
@@ -974,7 +974,9 @@ public class Root extends JFrame implements Runnable {
                         final Scanner scanner = new Scanner(file);
                         while (scanner.hasNextLine()) {
                             final String lineFromFile = scanner.nextLine();
-                            if (lineFromFile.contains(satellite.getDisplayName())) {
+                            String line = lineFromFile.trim().toLowerCase();
+                            String satName = satellite.getDisplayName().trim().toLowerCase();
+                            if (line.contains(satName)) {
                                 // a match!
                                 lineOne = scanner.nextLine();
                                 lineTwo = scanner.nextLine();
@@ -1027,7 +1029,10 @@ public class Root extends JFrame implements Runnable {
 
     private boolean checkCondition(Facility facility, Satellite satellite) {
         boolean valid = true;
-        if (!Objects.equals(facility.getFacilityOne(), satellite.getSatelliteOne())) {
+        Integer facilityOne = facility.getFacilityOne();
+        Integer satelliteOne = satellite.getSatelliteOne();
+
+        if (satelliteOne < facilityOne) {
             valid = false;
         }
         return valid;
@@ -1042,7 +1047,6 @@ public class Root extends JFrame implements Runnable {
     private void runPassPrediction(double timeSpanDays, GroundStation gs, AbstractSatellite sat,
                                    Time startJulianDate, DefaultTableModel model) throws ParseException {
         double timeStepSec = 60;
-        calcultedRow++;
         double jdStart = startJulianDate.getJulianDate();
         double time0, h0;
         double time1 = jdStart;
@@ -1082,7 +1086,6 @@ public class Root extends JFrame implements Runnable {
                 SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSSZ");
                 format.setTimeZone(TimeZone.getTimeZone("Iran"));
                 Date parse = format.parse(riseTimeStr);
-                System.out.println(" riseTimeStr " + riseTimeStr);
                 if (lastDay == null) {
                     lastDay = parse;
                 }
@@ -1125,7 +1128,7 @@ public class Root extends JFrame implements Runnable {
 
                 int diffInDays = (int) ((x1.getTime() - x2.getTime()) / (1000 * 60 * 60 * 24));
                 if (diffInDays == 1) {
-                    lastDay = parse;
+                    lastDay = null;
                     // TODO add new row
                     Object[] objects = new Object[27];
                     objects[25] = riseDate;
@@ -1135,6 +1138,7 @@ public class Root extends JFrame implements Runnable {
                         break;
 
                     model.addRow(objects);
+                    calcultedRow++;
                     String[] split = eachDay.toString().split("//");
                     SimpleDateFormat format2 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
                     format2.setTimeZone(TimeZone.getTimeZone("Iran"));
@@ -1155,12 +1159,13 @@ public class Root extends JFrame implements Runnable {
                         popUp.append("\n");
                         popUp.append(split1[1]);
                         popUp.append("\n");
-                        popUp.append("************************");
 
                         if (valueAt != null) {
                             valueAt += popUp.toString();
                             valueAt += "توسط ماهواره " + "\n" + sat.getDisplayName();
                             valueAt += "\n";
+                            popUp.append("************************");
+                            popUp.append("\n");
                             ResultDialog.resultTable.setValueAt("خطر", row, column);
                             valuesAt[row][column] = valueAt;
                         } else {

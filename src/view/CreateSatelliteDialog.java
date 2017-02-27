@@ -72,12 +72,12 @@ class CreateSatelliteDialog extends javax.swing.JDialog {
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel7.setText("فاصله تفکیک مکانی");
 
-        satelliteOne.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"1.2 تا 0.4", "0.4 تا 0.75", "0.75 تا 1.2", "1.2 تا 2.5", "2.5 تا 4.5", "4.5 تا 9", "بیش از 9 متر"}));
+        satelliteOne.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "بیش از نه متر", "بین 4.5 تا  9متر", "بین 2.5  تا 4.5 متر", "بین 1.2 تا 2.5 متر", "بین 0.75 تا  1.2  متر", "بین 0.4 تا 0.75 متر", "بین 0.2 تا 0.4 متر", "بین 0.1 تا 0.2 متر", "کمتر از 0.1 متر" }));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel3.setText("سطح");
 
-        levelComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"  ", "شناسایی", "آشکارسازی", "تمایز"}));
+        levelComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "  ", "شناسایی", "آشکارسازی", "تمایز" }));
 
         twoElement.setColumns(20);
         twoElement.setRows(5);

@@ -120,6 +120,18 @@ public class ShowSats extends javax.swing.JDialog {
                     case 4:
                         satOne = "بین 0.75 تا 1.2 متر";
                         break;
+                    case 5:
+                        satOne = "بین 0.4 تا 0.75 متر";
+                        break;
+                    case 6:
+                        satOne = "بین 0.2 تا 0.4 متر";
+                        break;
+                    case 7:
+                        satOne = "بین 0.1 تا 0.2 متر";
+                        break;
+                    case 8:
+                        satOne = "کمتر از 0.1 متر";
+                        break;
                 }
 
                 raw[1] = satOne;
