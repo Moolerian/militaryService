@@ -930,9 +930,15 @@ public class Root extends JFrame implements Runnable {
         }
     }
 
+    private String[][] valuesAt = new String[100][100];
+
+    int calcultedRow = 0;
+
     private void runPassPredictionActionPerformed(java.awt.event.ActionEvent evt) {
         if (facilityList.getModel().getSize() != 0) {
             try {
+                calcultedRow = 0;
+                valuesAt = new String[100][100];
                 passPrediction();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "خطایی در پردازش شما رخ داده است.", "نا موفق", JOptionPane.ERROR_MESSAGE);
@@ -1000,6 +1006,7 @@ public class Root extends JFrame implements Runnable {
 
                             double timeSpanDays = EarthUtil.daysBetween(facility.getStartDate(), facility.getEndDate());
 
+
                             runPassPrediction(timeSpanDays, groundStation, abstractSatellite, start, model);
                         }
                     }
@@ -1038,10 +1045,7 @@ public class Root extends JFrame implements Runnable {
         return valid;
     }
 
-
-    private String[][] valuesAt = new String[100][100];
-
-    int calcultedRow = 0;
+    int modelRow = 0;
 
     @SuppressWarnings("Duplicates")
     private void runPassPrediction(double timeSpanDays, GroundStation gs, AbstractSatellite sat,
@@ -1055,6 +1059,7 @@ public class Root extends JFrame implements Runnable {
         String riseTimeStr = null;
         String durStr = null;
         int row = 0;
+        calcultedRow = 0;
         Date lastDay = null;
         StringBuilder eachDay = new StringBuilder();
         for (double jd = jdStart; jd <= jdStart + timeSpanDays; jd += timeStepSec / (60.0 * 60.0 * 24.0)) {
@@ -1137,7 +1142,10 @@ public class Root extends JFrame implements Runnable {
                     if (calcultedRow == timeSpanDays)
                         break;
 
-                    model.addRow(objects);
+                    if (calcultedRow >= modelRow) {
+                        model.addRow(objects);
+                        modelRow++;
+                    }
                     calcultedRow++;
                     String[] split = eachDay.toString().split("//");
                     SimpleDateFormat format2 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
@@ -1147,7 +1155,6 @@ public class Root extends JFrame implements Runnable {
                         int column = Integer.parseInt(s.substring(11, 13));
                         String valueAt = valuesAt[row][column];
                         String[] split1 = s.split("-");
-
 
                         StringBuilder popUp = new StringBuilder();
                         popUp.append("از ساعت");
@@ -1189,6 +1196,7 @@ public class Root extends JFrame implements Runnable {
 
 
         }
+        System.out.println();
     }
 
     @SuppressWarnings("Duplicates")
