@@ -34,6 +34,8 @@ import java.util.List;
 /**
  * @author Mohammad
  */
+@SuppressWarnings({"UnusedParameters", "FieldCanBeLocal", "WeakerAccess",
+        "unused", "unchecked", "WhileLoopReplaceableByForEach", "ForLoopReplaceableByForEach", "AccessStaticViaInstance", "MagicConstant", "InfiniteLoopStatement"})
 public class Root extends JFrame implements Runnable {
     private static final long serialVersionUID = -5720473795150511569L;
     private Facility facility = null;
@@ -54,58 +56,6 @@ public class Root extends JFrame implements Runnable {
                 "gov.nasa.worldwind.avkey.DataFileStoreConfigurationFileName",
                 "src/resource/CacheLocationConfiguration.xml");
     }
-
-
-    // Variables declaration - do not modify
-    private javax.swing.JToggleButton Compass;
-    private javax.swing.JButton CustomFacility;
-    private javax.swing.JButton CustomSatellite;
-    private javax.swing.JMenuItem CustomSatelliteMenuItem;
-    private javax.swing.JButton Exit;
-    private javax.swing.JButton Go;
-    private javax.swing.JButton Help;
-    private javax.swing.JButton NewFacility;
-    private javax.swing.JMenuItem SaveMenuItem;
-    private javax.swing.JToggleButton Scale;
-    private javax.swing.JToggleButton WorldView;
-    private javax.swing.JButton allSatsButton;
-    private javax.swing.JPanel bottom;
-    private javax.swing.JPanel center;
-    private javax.swing.JCheckBoxMenuItem compassMenuItem;
-    private javax.swing.JMenuItem customeFacilityMenuItem;
-    private javax.swing.JMenu editMenu;
-    private javax.swing.JButton excelSat;
-    public static javax.swing.JList<Facility> facilityList;
-    private javax.swing.JMenu fileMenu;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JPopupMenu.Separator jSeparator2;
-    private javax.swing.JPopupMenu.Separator jSeparator3;
-    private javax.swing.JPopupMenu.Separator jSeparator4;
-    private javax.swing.JPanel left;
-    private javax.swing.JLabel localDate;
-    private javax.swing.JLabel localTime;
-    private javax.swing.JMenuBar menuBar;
-    private javax.swing.JMenuItem newMenuItem;
-    private javax.swing.JCheckBoxMenuItem openStreetMenuItem;
-    private javax.swing.JCheckBoxMenuItem placeNameMenuItem;
-    private javax.swing.JButton removeFacilityFromList;
-    private javax.swing.JButton runPassPrediction;
-    private javax.swing.JButton satDetailsButton;
-    private javax.swing.JButton satReport;
-    private javax.swing.JCheckBoxMenuItem scaleMenuItem;
-    private javax.swing.JPanel top;
-    private javax.swing.JLabel universalDate;
-    private javax.swing.JLabel universalTime;
-    private javax.swing.JCheckBoxMenuItem worldMenuItem;
-    // End of variables declaration
 
     /**
      * Creates new form root
@@ -130,10 +80,6 @@ public class Root extends JFrame implements Runnable {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-//        Root r = new Root();
-//        r.testTable();
-
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Root().setVisible(true);
@@ -908,7 +854,6 @@ public class Root extends JFrame implements Runnable {
     }
 
     private void AboutActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
     }
 
     private void SaveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -941,7 +886,7 @@ public class Root extends JFrame implements Runnable {
                 valuesAt = new String[100][100];
                 passPrediction();
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "خطایی در پردازش شما رخ داده است.", "نا موفق", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "لطفا برنامه ببندید و مجدد اجرا کنید.", "نا موفق", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         } else {
@@ -957,8 +902,8 @@ public class Root extends JFrame implements Runnable {
         currentJulianDate.setDateFormat(dateFormat);
         List<Satellite> satellites = EarthUtil.getSatellites();
         ResultDialog resultDialog = new ResultDialog(this, true);
-        DefaultTableModel model = (DefaultTableModel) ResultDialog.resultTable.getModel();
-        ResultDialog.resultTable.setRowHeight(80);
+        DefaultTableModel model = (DefaultTableModel) resultDialog.resultTable.getModel();
+        resultDialog.resultTable.setRowHeight(80);
 
 
         for (int index = 0; index < countFacilities; index++) {
@@ -1014,7 +959,7 @@ public class Root extends JFrame implements Runnable {
             }
         }
 
-        ResultDialog.resultTable.addMouseListener(new MouseAdapter() {
+        resultDialog.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
@@ -1049,7 +994,7 @@ public class Root extends JFrame implements Runnable {
 
     @SuppressWarnings("Duplicates")
     private void runPassPrediction(double timeSpanDays, GroundStation gs, AbstractSatellite sat,
-                                   Time startJulianDate, DefaultTableModel model) throws ParseException {
+                                   Time startJulianDate, DefaultTableModel model ) throws ParseException {
         double timeStepSec = 60;
         double jdStart = startJulianDate.getJulianDate();
         double time0, h0;
@@ -1134,7 +1079,6 @@ public class Root extends JFrame implements Runnable {
                 int diffInDays = (int) ((x1.getTime() - x2.getTime()) / (1000 * 60 * 60 * 24));
                 if (diffInDays == 1) {
                     lastDay = null;
-                    // TODO add new row
                     Object[] objects = new Object[27];
                     objects[25] = riseDate;
                     objects[26] = gs.getStationName();
@@ -1173,10 +1117,10 @@ public class Root extends JFrame implements Runnable {
                             valueAt += "\n";
                             popUp.append("************************");
                             popUp.append("\n");
-                            ResultDialog.resultTable.setValueAt("خطر", row, column);
+                            model.setValueAt("خطر", row, column);
                             valuesAt[row][column] = valueAt;
                         } else {
-                            ResultDialog.resultTable.setValueAt("خطر", row, column);
+                            model.setValueAt("خطر", row, column);
                             valuesAt[row][column] = popUp.toString() + " توسط ماهواره " + "\n" + sat.getDisplayName() + "\n";
                         }
                     }
@@ -1219,5 +1163,56 @@ public class Root extends JFrame implements Runnable {
         return -b / a;
 
     }
+
+
+    // Variables declaration - do not modify
+    private javax.swing.JToggleButton Compass;
+    private javax.swing.JButton CustomFacility;
+    private javax.swing.JButton CustomSatellite;
+    private javax.swing.JMenuItem CustomSatelliteMenuItem;
+    private javax.swing.JButton Exit;
+    private javax.swing.JButton Go;
+    private javax.swing.JButton Help;
+    private javax.swing.JButton NewFacility;
+    private javax.swing.JMenuItem SaveMenuItem;
+    private javax.swing.JToggleButton Scale;
+    private javax.swing.JToggleButton WorldView;
+    private javax.swing.JButton allSatsButton;
+    private javax.swing.JPanel bottom;
+    private javax.swing.JPanel center;
+    private javax.swing.JCheckBoxMenuItem compassMenuItem;
+    private javax.swing.JMenuItem customeFacilityMenuItem;
+    private javax.swing.JMenu editMenu;
+    private javax.swing.JButton excelSat;
+    static javax.swing.JList<Facility> facilityList;
+    private javax.swing.JMenu fileMenu;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
+    private javax.swing.JPanel left;
+    private javax.swing.JLabel localDate;
+    private javax.swing.JLabel localTime;
+    private javax.swing.JMenuBar menuBar;
+    private javax.swing.JMenuItem newMenuItem;
+    private javax.swing.JCheckBoxMenuItem openStreetMenuItem;
+    private javax.swing.JCheckBoxMenuItem placeNameMenuItem;
+    private javax.swing.JButton removeFacilityFromList;
+    private javax.swing.JButton runPassPrediction;
+    private javax.swing.JButton satDetailsButton;
+    private javax.swing.JButton satReport;
+    private javax.swing.JCheckBoxMenuItem scaleMenuItem;
+    private javax.swing.JPanel top;
+    private javax.swing.JLabel universalDate;
+    private javax.swing.JLabel universalTime;
+    private javax.swing.JCheckBoxMenuItem worldMenuItem;
     // End of variables declaration
 }

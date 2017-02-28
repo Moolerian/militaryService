@@ -3,20 +3,32 @@ package util;
 import model.Facility;
 import model.SatReport;
 import model.Satellite;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import view.FacilityDialog;
 
+import javax.swing.*;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by Mohammad on 9/16/2016.
+ * @author mohammad
+ * @since
  */
 
+@SuppressWarnings({"unused", "SqlNoDataSourceInspection", "SqlDialectInspection", "JavaDoc"})
 public class EarthUtil {
 
 
@@ -331,7 +343,7 @@ public class EarthUtil {
         try {
             statement = connection.prepareStatement("SELECT * FROM satellite where displayName LIKE ? ");
 
-            statement.setString(1, "%"+satName+"%");
+            statement.setString(1, "%" + satName + "%");
 
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -501,5 +513,34 @@ public class EarthUtil {
         return calendar;
     }
 
+    public static void writeToExcell(JTable table) throws IOException {
+        new WorkbookFactory();
+        Workbook wb = new XSSFWorkbook(); //Excell workbook
+        Sheet sheet = wb.createSheet(); //WorkSheet
+        Row row = sheet.createRow(2); //Row created at line 3
+        TableModel model = table.getModel(); //Table model
+
+
+        Row headerRow = sheet.createRow(0); //Create row at line 0
+        for (int headings = 0; headings < model.getColumnCount(); headings++) { //For each column
+            headerRow.createCell(headings).setCellValue(model.getColumnName(headings));//Write column name
+        }
+
+        for (int rows = 0; rows < model.getRowCount(); rows++) { //For each table row
+            for (int cols = 0; cols < table.getColumnCount(); cols++) { //For each table column
+                row.createCell(cols).setCellValue((model.getValueAt(rows, cols) != null)
+                        ? model.getValueAt(rows, cols).toString() : ""); //Write value
+            }
+
+            //Set the row to the next one in the sequence
+            row = sheet.createRow((rows + 3));
+        }
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setSelectedFile(new File(System.getProperty("user.dir"))); // user will see this name during download
+        if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(null)) {
+            wb.write(new FileOutputStream(chooser.getSelectedFile() + ".xlsx"));//Save the file
+        }
+    }
 
 }
