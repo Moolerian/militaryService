@@ -876,13 +876,14 @@ public class Root extends JFrame implements Runnable {
     }
 
     private String[][] valuesAt = new String[100][100];
-
+    int modelRow = 0;
     int calcultedRow = 0;
 
     private void runPassPredictionActionPerformed(java.awt.event.ActionEvent evt) {
         if (facilityList.getModel().getSize() != 0) {
             try {
                 calcultedRow = 0;
+                modelRow = 0;
                 valuesAt = new String[100][100];
                 passPrediction();
             } catch (Exception e) {
@@ -959,7 +960,7 @@ public class Root extends JFrame implements Runnable {
             }
         }
 
-        resultDialog.addMouseListener(new MouseAdapter() {
+        ResultDialog.resultTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
@@ -990,7 +991,7 @@ public class Root extends JFrame implements Runnable {
         return valid;
     }
 
-    int modelRow = 0;
+
 
     @SuppressWarnings("Duplicates")
     private void runPassPrediction(double timeSpanDays, GroundStation gs, AbstractSatellite sat,
