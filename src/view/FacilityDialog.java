@@ -108,7 +108,7 @@ public class FacilityDialog extends javax.swing.JDialog {
     private void facilityTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) ((JTree) evt.getSource()).
                 getLastSelectedPathComponent();
-        if (selectedNode.getChildCount() == 0) {
+        if (selectedNode.getChildCount() == 0 && selectedNode.isLeaf()) {
             Facility facility = (Facility) selectedNode.getUserObject();
             WWJUtil.getUserFacilities().add(facility);
             model.addElement(facility);

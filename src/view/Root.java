@@ -6,6 +6,7 @@ import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import model.Facility;
+import model.Result;
 import model.SatReport;
 import model.Satellite;
 import name.gano.astro.AER;
@@ -754,7 +755,6 @@ public class Root extends JFrame implements Runnable {
     }
 
     private void openStreetMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println(WWJUtil.getOpenStreetLayer());
         JCheckBoxMenuItem openStreet = (JCheckBoxMenuItem) evt.getSource();
         if (openStreet.isSelected()) {
             WWJUtil.getWwj().getModel().getLayers().add(WWJUtil.getOpenStreetLayer());
@@ -875,16 +875,9 @@ public class Root extends JFrame implements Runnable {
         }
     }
 
-    private String[][] valuesAt = new String[100][100];
-    int modelRow = 0;
-    int calcultedRow = 0;
-
     private void runPassPredictionActionPerformed(java.awt.event.ActionEvent evt) {
         if (facilityList.getModel().getSize() != 0) {
             try {
-                calcultedRow = 0;
-                modelRow = 0;
-                valuesAt = new String[100][100];
                 passPrediction();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "لطفا برنامه ببندید و مجدد اجرا کنید.", "نا موفق", JOptionPane.ERROR_MESSAGE);
@@ -895,9 +888,14 @@ public class Root extends JFrame implements Runnable {
         }
     }
 
+    SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSSZ");
+    int row = 0;
+    Map<Date, Integer> rowMap;
+    List<Result> resultList;
+
     private void passPrediction() throws Exception {
         int countFacilities = facilityList.getModel().getSize();
-        ListModel<Facility> listModel = facilityList.getModel();
+        ListModel<Facility> facilities = facilityList.getModel();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSS z");
         Time currentJulianDate = new Time();
         currentJulianDate.setDateFormat(dateFormat);
@@ -905,10 +903,23 @@ public class Root extends JFrame implements Runnable {
         ResultDialog resultDialog = new ResultDialog(this, true);
         DefaultTableModel model = (DefaultTableModel) resultDialog.resultTable.getModel();
         resultDialog.resultTable.setRowHeight(80);
+        format.setTimeZone(TimeZone.getTimeZone("Iran"));
 
 
         for (int index = 0; index < countFacilities; index++) {
-            Facility facility = listModel.getElementAt(index);
+            Facility facility = facilities.getElementAt(index);
+            double timeSpanDays = EarthUtil.daysBetween(facility.getStartDate(), facility.getEndDate());
+            resultList = new MyList();
+            rowMap = new HashMap<>(10);
+            for (int i = 0; i < timeSpanDays; i++) {
+                Date date = addDays(facility.getStartDate(), i);
+                rowMap.put(date, row++);
+                Object[] objects = new Object[27];
+                String farsiRiseDate = EarthUtil.convertJulianToPersian(date, "EEEE d MMMM y");
+                objects[25] = farsiRiseDate;
+                objects[26] = facility.getDisplayName();
+                model.addRow(objects);
+            }
             for (Satellite satellite : satellites) {
                 if (checkCondition(facility, satellite)) {
 
@@ -950,9 +961,6 @@ public class Root extends JFrame implements Runnable {
                                     startCalendar.get(Calendar.SECOND));
                             start.setDateFormat(dateFormat);
 
-                            double timeSpanDays = EarthUtil.daysBetween(facility.getStartDate(), facility.getEndDate());
-
-
                             runPassPrediction(timeSpanDays, groundStation, abstractSatellite, start, model);
                         }
                     }
@@ -970,7 +978,13 @@ public class Root extends JFrame implements Runnable {
                     ResultDetails resultDetails = new ResultDetails(null, true);
                     resultDetails.resultDetailTextArea.setFont(resultDetails.resultDetailTextArea.getFont().deriveFont(14f));
                     resultDetails.resultDetailTextArea.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-                    resultDetails.resultDetailTextArea.append(valuesAt[row][column]);
+                    List<Result> results = (List<Result>) ResultDialog.resultTable.getValueAt(row, column);
+                    for (Result r : results) {
+                        resultDetails.resultDetailTextArea.append(r.getRiseDate());
+                        resultDetails.resultDetailTextArea.append(" توسط ماهواره ");
+                        resultDetails.resultDetailTextArea.append(r.getSatName());
+                        resultDetails.resultDetailTextArea.append("\n");
+                    }
                     resultDetails.resultDetailTextArea.append("\n");
                     resultDetails.setVisible(true);
                 }
@@ -978,6 +992,13 @@ public class Root extends JFrame implements Runnable {
         });
 
         resultDialog.setVisible(true);
+    }
+
+    private Date addDays(Date date, int days) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, days); //minus number would decrement the days
+        return cal.getTime();
     }
 
     private boolean checkCondition(Facility facility, Satellite satellite) {
@@ -991,22 +1012,18 @@ public class Root extends JFrame implements Runnable {
         return valid;
     }
 
-
-
     @SuppressWarnings("Duplicates")
     private void runPassPrediction(double timeSpanDays, GroundStation gs, AbstractSatellite sat,
-                                   Time startJulianDate, DefaultTableModel model ) throws ParseException {
-        double timeStepSec = 60;
+                                   Time startJulianDate, DefaultTableModel tableModel) throws ParseException {
+        double timeStepSec = 360;
         double jdStart = startJulianDate.getJulianDate();
         double time0, h0;
         double time1 = jdStart;
         double h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(time1), time1)[1] - gs.getElevationConst();
         double lastRise = 0;
         String riseTimeStr = null;
+
         String durStr = null;
-        int row = 0;
-        calcultedRow = 0;
-        Date lastDay = null;
         StringBuilder eachDay = new StringBuilder();
         for (double jd = jdStart; jd <= jdStart + timeSpanDays; jd += timeStepSec / (60.0 * 60.0 * 24.0)) {
             time0 = time1;
@@ -1033,115 +1050,52 @@ public class Root extends JFrame implements Runnable {
             }
 
             if (riseTimeStr != null && durStr != null) {
+                Date riseDate = format.parse(riseTimeStr);
 
-                SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSSZ");
-                format.setTimeZone(TimeZone.getTimeZone("Iran"));
-                Date parse = format.parse(riseTimeStr);
-                if (lastDay == null) {
-                    lastDay = parse;
-                }
-
-                Calendar parsCal = Calendar.getInstance();
-                parsCal.setTime(parse);
-                int parsDay = parsCal.get(Calendar.DAY_OF_MONTH);
-
-                Calendar lastCal = Calendar.getInstance();
-                lastCal.setTime(lastDay);
-                int lDay = lastCal.get(Calendar.DAY_OF_MONTH);
-
-
-                String riseDate = EarthUtil.convertJulianToPersian(parse, "EEEE d MMMM y");
+                String riseTime = EarthUtil.convertJulianToPersian(riseDate, "HH:mm:ss");
                 Float floatDur = Float.parseFloat(durStr);
                 int intDur = floatDur.intValue();
 
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(parse);
+                cal.setTime(riseDate);
                 cal.add(Calendar.SECOND, intDur);
                 Date time = cal.getTime();
                 String untilTime = EarthUtil.convertJulianToPersian(time, "HH:mm:ss");
 
-                Calendar cal1 = Calendar.getInstance();
-                cal1.setTime(parse);
-                cal1.set(Calendar.HOUR_OF_DAY, 0);
-                cal1.set(Calendar.MINUTE, 0);
-                cal1.set(Calendar.SECOND, 0);
-                cal1.set(Calendar.MILLISECOND, 0);
-                Date x1 = cal.getTime();
+                Result result = new Result();
+                result.setFacilityName(gs.getStationName());
+                result.setSatName(sat.getDisplayName());
 
-                Calendar cal2 = Calendar.getInstance();
-                cal2.setTime(lastDay);
-                cal2.set(Calendar.HOUR_OF_DAY, 0);
-                cal2.set(Calendar.MINUTE, 0);
-                cal2.set(Calendar.SECOND, 0);
-                cal2.set(Calendar.MILLISECOND, 0);
-                Date x2 = cal2.getTime();
+                String s = " از ساعت " + riseTime + " تا ساعت " + untilTime;
 
+                result.setRiseDate(s);
+                result.setDuration(durStr);
 
-                int diffInDays = (int) ((x1.getTime() - x2.getTime()) / (1000 * 60 * 60 * 24));
-                if (diffInDays == 1) {
-                    lastDay = null;
-                    Object[] objects = new Object[27];
-                    objects[25] = riseDate;
-                    objects[26] = gs.getStationName();
+                int column = Integer.parseInt(riseDate.toString().substring(11, 13));
+                Integer row = rowMap.get(removeTime(riseDate));
 
-                    if (calcultedRow == timeSpanDays)
-                        break;
+                if (row != null) {
 
-                    if (calcultedRow >= modelRow) {
-                        model.addRow(objects);
-                        modelRow++;
-                    }
-                    calcultedRow++;
-                    String[] split = eachDay.toString().split("//");
-                    SimpleDateFormat format2 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-                    format2.setTimeZone(TimeZone.getTimeZone("Iran"));
-
-                    for (String s : split) {
-                        int column = Integer.parseInt(s.substring(11, 13));
-                        String valueAt = valuesAt[row][column];
-                        String[] split1 = s.split("-");
-
-                        StringBuilder popUp = new StringBuilder();
-                        popUp.append("از ساعت");
-                        popUp.append("\n");
-                        String tilTime = EarthUtil.convertJulianToPersian(format2.parse(split1[0]), "HH:mm:ss");
-                        popUp.append(tilTime);
-                        popUp.append("\n");
-                        popUp.append("تا ساعت");
-                        popUp.append("\n");
-                        popUp.append(split1[1]);
-                        popUp.append("\n");
-
-                        if (valueAt != null) {
-                            valueAt += popUp.toString();
-                            valueAt += "توسط ماهواره " + "\n" + sat.getDisplayName();
-                            valueAt += "\n";
-                            popUp.append("************************");
-                            popUp.append("\n");
-                            model.setValueAt("خطر", row, column);
-                            valuesAt[row][column] = valueAt;
-                        } else {
-                            model.setValueAt("خطر", row, column);
-                            valuesAt[row][column] = popUp.toString() + " توسط ماهواره " + "\n" + sat.getDisplayName() + "\n";
-                        }
-                    }
-
-                    eachDay = new StringBuilder();
-                    row++;
-                } else if (parsDay - lDay < 1) {
-                    eachDay.append(parse);
-                    eachDay.append("-");
-                    eachDay.append(untilTime);
-                    eachDay.append("//");
-
+                    resultList.add(result);
+                    ResultDialog.resultTable.setValueAt(resultList, row, column);
                 }
+
+                /*********************************************/
                 riseTimeStr = null;
                 durStr = null;
             }
-
-
         }
-        System.out.println();
+
+    }
+
+    private Date removeTime(Date inputDate) {
+        Calendar riseCal = Calendar.getInstance();
+        riseCal.setTime(inputDate);
+        riseCal.set(Calendar.HOUR_OF_DAY, 0);
+        riseCal.set(Calendar.MINUTE, 0);
+        riseCal.set(Calendar.SECOND, 0);
+        riseCal.set(Calendar.MILLISECOND, 0);
+        return riseCal.getTime();
     }
 
     @SuppressWarnings("Duplicates")
