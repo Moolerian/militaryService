@@ -9,14 +9,14 @@ import model.Facility;
 import model.Result;
 import model.SatReport;
 import model.Satellite;
-import name.gano.astro.AER;
-import name.gano.astro.time.Time;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import util.*;
+import test.LinePanel;
+import util.EarthUtil;
+import util.WWJUtil;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -26,8 +26,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -77,7 +75,12 @@ public class Root extends JFrame implements Runnable {
         WWJUtil.createWWJ();
 
         try {
-            UIManager.setLookAndFeel("com.jtattoo.plaf.hifi.HiFiLookAndFeel");
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -200,7 +203,7 @@ public class Root extends JFrame implements Runnable {
         });
 
         runPassPrediction.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        runPassPrediction.setForeground(new java.awt.Color(255, 255, 0));
+        runPassPrediction.setForeground(java.awt.Color.darkGray);
         runPassPrediction.setText("پردازش");
         runPassPrediction.setToolTipText("");
         runPassPrediction.addActionListener(new java.awt.event.ActionListener() {
@@ -298,37 +301,36 @@ public class Root extends JFrame implements Runnable {
         topLayout.setHorizontalGroup(
                 topLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(topLayout.createSequentialGroup()
-                                .addContainerGap()
                                 .addComponent(Go)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(removeFacilityFromList)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(NewFacility)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(CustomFacility, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(CustomSatellite)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Scale)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(WorldView)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Compass)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Help)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(satReport)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(satDetailsButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(excelSat)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(allSatsButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Exit)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(runPassPrediction, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap())
+                                .addContainerGap(25, Short.MAX_VALUE))
         );
         topLayout.setVerticalGroup(
                 topLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -361,28 +363,28 @@ public class Root extends JFrame implements Runnable {
         jLabel1.setText("زمان محلی");
 
         localTime.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        localTime.setForeground(new java.awt.Color(255, 255, 0));
+        localTime.setForeground(java.awt.Color.darkGray);
         localTime.setText("00:00:00");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel2.setText("زمان جهانی");
 
         universalTime.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        universalTime.setForeground(new java.awt.Color(255, 255, 0));
+        universalTime.setForeground(java.awt.Color.darkGray);
         universalTime.setText("00:00:00");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setText("تاریخ محلی");
 
         localDate.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        localDate.setForeground(new java.awt.Color(255, 255, 0));
+        localDate.setForeground(java.awt.Color.darkGray);
         localDate.setText("14/10/2016");
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setText("تاریخ جهانی");
 
         universalDate.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        universalDate.setForeground(new java.awt.Color(255, 255, 0));
+        universalDate.setForeground(java.awt.Color.darkGray);
         universalDate.setText("14/10/2016");
 
         javax.swing.GroupLayout bottomLayout = new javax.swing.GroupLayout(bottom);
@@ -431,7 +433,7 @@ public class Root extends JFrame implements Runnable {
         centerLayout.setHorizontalGroup(
                 centerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(bottom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(WWJUtil.getWwj(), javax.swing.GroupLayout.DEFAULT_SIZE, 1401, Short.MAX_VALUE)
+                        .addComponent(WWJUtil.getWwj(), javax.swing.GroupLayout.DEFAULT_SIZE, 1297, Short.MAX_VALUE)
         );
         centerLayout.setVerticalGroup(
                 centerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -878,7 +880,36 @@ public class Root extends JFrame implements Runnable {
     private void runPassPredictionActionPerformed(java.awt.event.ActionEvent evt) {
         if (facilityList.getModel().getSize() != 0) {
             try {
-                passPrediction();
+
+                List<Result> results = new ArrayList<>();
+                Result result = new Result();
+                result.setSatName("NOAA");
+                result.setFacilityName("توپ");
+                result.setDate(new Date());
+                result.setStartDate(new Date());
+                result.setEndDate(new Date());
+                int[] a = {60, 5};
+                int[] b = {325, 12};
+                int[] c = {590, 18};
+                int[] d = {950, 1};
+                List<int[]> list = new ArrayList<>();
+                list.add(a);
+                list.add(b);
+                list.add(c);
+                list.add(d);
+                result.setLine(list);
+
+                results.add(result);
+
+                ResultDialog resultDialog = new ResultDialog(this, true);
+
+                LinePanel linePanel = new LinePanel();
+                linePanel.setBounds(0, 0, 1440, 800);
+                linePanel.setResultList(results);
+                resultDialog.add(linePanel);
+
+                resultDialog.pack();
+                resultDialog.setVisible(true);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "لطفا برنامه ببندید و مجدد اجرا کنید.", "نا موفق", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
@@ -888,48 +919,18 @@ public class Root extends JFrame implements Runnable {
         }
     }
 
-    SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSSZ");
-    int row = 0;
-    Map<Date, Integer> rowMap;
-    List<Result> resultList;
-
     private void passPrediction() throws Exception {
         int countFacilities = facilityList.getModel().getSize();
         ListModel<Facility> facilities = facilityList.getModel();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSS z");
-        Time currentJulianDate = new Time();
-        currentJulianDate.setDateFormat(dateFormat);
         List<Satellite> satellites = EarthUtil.getSatellites();
-        ResultDialog resultDialog = new ResultDialog(this, true);
-        DefaultTableModel model = (DefaultTableModel) resultDialog.resultTable.getModel();
-        resultDialog.resultTable.setRowHeight(80);
-        format.setTimeZone(TimeZone.getTimeZone("Iran"));
-
 
         for (int index = 0; index < countFacilities; index++) {
             Facility facility = facilities.getElementAt(index);
             double timeSpanDays = EarthUtil.daysBetween(facility.getStartDate(), facility.getEndDate());
-            resultList = new MyList();
-            rowMap = new HashMap<>(10);
-            for (int i = 0; i < timeSpanDays; i++) {
-                Date date = addDays(facility.getStartDate(), i);
-                rowMap.put(date, row++);
-                Object[] objects = new Object[27];
-                String farsiRiseDate = EarthUtil.convertJulianToPersian(date, "EEEE d MMMM y");
-                objects[25] = farsiRiseDate;
-                objects[26] = facility.getDisplayName();
-                model.addRow(objects);
-            }
+
             for (Satellite satellite : satellites) {
                 if (checkCondition(facility, satellite)) {
 
-                    // Define GroundStation
-                    double[] lla = {facility.getLatitude(), facility.getLongitude(), 0};
-                    GroundStation groundStation = new GroundStation("", lla, currentJulianDate.getJulianDate());
-                    groundStation.setElevationConst(0);
-                    groundStation.setStationName(facility.getDisplayName());
-
-                    // Define AbstractSatellite by reading tle file
                     File file = new File("src/resource/tle/tle.txt");
                     if (file.exists()) {
                         String lineOne = "";
@@ -947,51 +948,10 @@ public class Root extends JFrame implements Runnable {
                                 break;
                             }
                         }
-
-                        if (!Objects.equals(lineOne, "") & !Objects.equals(lineTwo, "")) {
-                            AbstractSatellite abstractSatellite = new SatelliteTleSGP4(satellite.getDisplayName(), lineOne, lineTwo);
-                            abstractSatellite.setDisplayName(satellite.getDisplayName());
-
-                            Calendar startCalendar = EarthUtil.dateToCalendar(facility.getStartDate());
-                            Time start = new Time(startCalendar.get(Calendar.YEAR),
-                                    startCalendar.get(Calendar.MONTH) + 1,
-                                    startCalendar.get(Calendar.DAY_OF_MONTH),
-                                    startCalendar.get(Calendar.HOUR_OF_DAY),
-                                    startCalendar.get(Calendar.MINUTE),
-                                    startCalendar.get(Calendar.SECOND));
-                            start.setDateFormat(dateFormat);
-
-                            runPassPrediction(timeSpanDays, groundStation, abstractSatellite, start, model);
-                        }
                     }
                 }
             }
         }
-
-        ResultDialog.resultTable.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    JTable target = (JTable) e.getSource();
-                    int row = target.getSelectedRow();
-                    int column = target.getSelectedColumn();
-
-                    ResultDetails resultDetails = new ResultDetails(null, true);
-                    resultDetails.resultDetailTextArea.setFont(resultDetails.resultDetailTextArea.getFont().deriveFont(14f));
-                    resultDetails.resultDetailTextArea.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-                    List<Result> results = (List<Result>) ResultDialog.resultTable.getValueAt(row, column);
-                    for (Result r : results) {
-                        resultDetails.resultDetailTextArea.append(r.getRiseDate());
-                        resultDetails.resultDetailTextArea.append(" توسط ماهواره ");
-                        resultDetails.resultDetailTextArea.append(r.getSatName());
-                        resultDetails.resultDetailTextArea.append("\n");
-                    }
-                    resultDetails.resultDetailTextArea.append("\n");
-                    resultDetails.setVisible(true);
-                }
-            }
-        });
-
-        resultDialog.setVisible(true);
     }
 
     private Date addDays(Date date, int days) {
@@ -1010,113 +970,6 @@ public class Root extends JFrame implements Runnable {
             valid = false;
         }
         return valid;
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void runPassPrediction(double timeSpanDays, GroundStation gs, AbstractSatellite sat,
-                                   Time startJulianDate, DefaultTableModel tableModel) throws ParseException {
-        double timeStepSec = 360;
-        double jdStart = startJulianDate.getJulianDate();
-        double time0, h0;
-        double time1 = jdStart;
-        double h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(time1), time1)[1] - gs.getElevationConst();
-        double lastRise = 0;
-        String riseTimeStr = null;
-
-        String durStr = null;
-        StringBuilder eachDay = new StringBuilder();
-        for (double jd = jdStart; jd <= jdStart + timeSpanDays; jd += timeStepSec / (60.0 * 60.0 * 24.0)) {
-            time0 = time1;
-            time1 = jd + timeStepSec / (60.0 * 60.0 * 24.0);
-            h0 = h1;
-            h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(time1), time1)[1] - gs.getElevationConst();
-            // rise
-            if (h0 <= 0 && h1 > 0) {
-                double riseTime = findSatRiseSetRoot(sat, gs, time0, time1, h0, h1);
-                lastRise = riseTime;
-                riseTimeStr = startJulianDate.convertJD2String(riseTime);
-            }
-
-            // set
-            if (h1 <= 0 && h0 > 0) {
-                double setTime = findSatRiseSetRoot(sat, gs, time0, time1, h0, h1);
-                // add duration
-                if (lastRise > 0) {
-                    DecimalFormat fmt2Dig = new DecimalFormat("00.000");
-
-                    double duration = (setTime - lastRise) * 24.0 * 60.0 * 60.0; // seconds
-                    durStr = fmt2Dig.format(duration);
-                }
-            }
-
-            if (riseTimeStr != null && durStr != null) {
-                Date riseDate = format.parse(riseTimeStr);
-
-                String riseTime = EarthUtil.convertJulianToPersian(riseDate, "HH:mm:ss");
-                Float floatDur = Float.parseFloat(durStr);
-                int intDur = floatDur.intValue();
-
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(riseDate);
-                cal.add(Calendar.SECOND, intDur);
-                Date time = cal.getTime();
-                String untilTime = EarthUtil.convertJulianToPersian(time, "HH:mm:ss");
-
-                Result result = new Result();
-                result.setFacilityName(gs.getStationName());
-                result.setSatName(sat.getDisplayName());
-
-                String s = " از ساعت " + riseTime + " تا ساعت " + untilTime;
-
-                result.setRiseDate(s);
-                result.setDuration(durStr);
-
-                int column = Integer.parseInt(riseDate.toString().substring(11, 13));
-                Integer row = rowMap.get(removeTime(riseDate));
-
-                if (row != null) {
-
-                    resultList.add(result);
-                    ResultDialog.resultTable.setValueAt(resultList, row, column);
-                }
-
-                /*********************************************/
-                riseTimeStr = null;
-                durStr = null;
-            }
-        }
-
-    }
-
-    private Date removeTime(Date inputDate) {
-        Calendar riseCal = Calendar.getInstance();
-        riseCal.setTime(inputDate);
-        riseCal.set(Calendar.HOUR_OF_DAY, 0);
-        riseCal.set(Calendar.MINUTE, 0);
-        riseCal.set(Calendar.SECOND, 0);
-        riseCal.set(Calendar.MILLISECOND, 0);
-        return riseCal.getTime();
-    }
-
-    @SuppressWarnings("Duplicates")
-    private double findSatRiseSetRoot(AbstractSatellite sat, GroundStation gs, double time0, double time1, double f0, double f1) {
-        double tol = (1.157407E-5) / 4;
-        while (Math.abs(time1 - time0) > 2 * tol) {
-            double timeMid = (time1 + time0) / 2.0;
-            double fmid = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(timeMid), timeMid)[1] - gs.getElevationConst();
-            if (f0 * fmid > 0) {
-                f0 = fmid;
-                time0 = timeMid;
-
-            } else {
-                f1 = fmid;
-                time1 = timeMid;
-            }
-        }
-        double a = (f1 - f0) / (time1 - time0);
-        double b = f1 - a * time1;
-        return -b / a;
-
     }
 
 

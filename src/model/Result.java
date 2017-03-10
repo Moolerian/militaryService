@@ -1,16 +1,20 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author mohammad
  */
-public class Result implements Serializable{
+public class Result implements Serializable {
 
-    private String facilityName ;
-    private String satName ;
-    private String riseDate ;
-    private String duration ;
+    private String facilityName;
+    private String satName;
+    private Date date;
+    private Date startDate;
+    private Date endDate;
+    private List<int[]> line;
 
     public String getFacilityName() {
         return facilityName;
@@ -28,24 +32,35 @@ public class Result implements Serializable{
         this.satName = satName;
     }
 
-    public String getRiseDate() {
-        return riseDate;
+    public List<int[]> getLine() {
+        return line;
     }
 
-    public void setRiseDate(String riseDate) {
-        this.riseDate = riseDate;
+    public void setLine(List<int[]> line) {
+        this.line = line;
     }
 
-    public String getDuration() {
-        return duration;
+    public Date getDate() {
+        return date;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    @Override
-    public String toString() {
-        return "خطر";
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }
