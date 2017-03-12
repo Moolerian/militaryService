@@ -19,13 +19,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author mohammad
- * @since
  */
 
 @SuppressWarnings({"unused", "SqlNoDataSourceInspection", "SqlDialectInspection", "JavaDoc"})
@@ -433,6 +430,14 @@ public class EarthUtil {
         calendar.setTime(date);
         return calendar;
 
+    }
+
+    public static int getTimeFromDate(java.util.Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int hours = cal.get(Calendar.HOUR_OF_DAY);
+        int minutes = cal.get(Calendar.MINUTE);
+        return (hours * 60) + minutes;
     }
 
     public static String convertJulianToPersianForUi(java.util.Date date) {

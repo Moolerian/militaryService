@@ -15,6 +15,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import test.LinePanel;
+import uk.me.g4dpz.satellite.GroundStationPosition;
+import uk.me.g4dpz.satellite.PassPredictor;
+import uk.me.g4dpz.satellite.SatPassTime;
+import uk.me.g4dpz.satellite.TLE;
 import util.EarthUtil;
 import util.WWJUtil;
 
@@ -881,35 +885,40 @@ public class Root extends JFrame implements Runnable {
         if (facilityList.getModel().getSize() != 0) {
             try {
 
-                List<Result> results = new ArrayList<>();
-                Result result = new Result();
-                result.setSatName("NOAA");
-                result.setFacilityName("توپ");
-                result.setDate(new Date());
-                result.setStartDate(new Date());
-                result.setEndDate(new Date());
-                int[] a = {60, 5};
-                int[] b = {325, 12};
-                int[] c = {590, 18};
-                int[] d = {950, 1};
-                List<int[]> list = new ArrayList<>();
-                list.add(a);
-                list.add(b);
-                list.add(c);
-                list.add(d);
-                result.setLine(list);
+//                List<Result> results = new ArrayList<>();
+//
+//                Date now = new Date();
+//
+//                Date tomorrow = addDays(now, 1);
+//
+//                Result result = new Result();
+//                result.setSatName("NOAA");
+//                result.setFacilityName("توپ");
+//                result.setDate(tomorrow);
+//                int[] a = {EarthUtil.getTimeFromDate(now), 5};
+//                int[] b = {325, 12};
+//                int[] c = {590, 18};
+//                int[] d = {950, 1};
+//                List<int[]> list = new ArrayList<>();
+//                list.add(a);
+//                list.add(b);
+//                list.add(c);
+//                list.add(d);
+//                result.setLine(list);
+//
+//                results.add(result);
+//
+//                ResultDialog resultDialog = new ResultDialog(this, true);
+//
+//                LinePanel linePanel = new LinePanel();
+//                linePanel.setBounds(0, 0, 1440, 800);
+//                linePanel.setResultList(results);
+//                resultDialog.add(linePanel);
+//
+//                resultDialog.pack();
+//                resultDialog.setVisible(true);
 
-                results.add(result);
-
-                ResultDialog resultDialog = new ResultDialog(this, true);
-
-                LinePanel linePanel = new LinePanel();
-                linePanel.setBounds(0, 0, 1440, 800);
-                linePanel.setResultList(results);
-                resultDialog.add(linePanel);
-
-                resultDialog.pack();
-                resultDialog.setVisible(true);
+                passPrediction();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "لطفا برنامه ببندید و مجدد اجرا کنید.", "نا موفق", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
@@ -923,35 +932,78 @@ public class Root extends JFrame implements Runnable {
         int countFacilities = facilityList.getModel().getSize();
         ListModel<Facility> facilities = facilityList.getModel();
         List<Satellite> satellites = EarthUtil.getSatellites();
+        List<Result> results = new ArrayList<>();
 
         for (int index = 0; index < countFacilities; index++) {
             Facility facility = facilities.getElementAt(index);
             double timeSpanDays = EarthUtil.daysBetween(facility.getStartDate(), facility.getEndDate());
 
-            for (Satellite satellite : satellites) {
-                if (checkCondition(facility, satellite)) {
+            for (int i = 0; i < timeSpanDays; i++) {
+                Date calculatingDate = addDays(facility.getStartDate(), i);
 
-                    File file = new File("src/resource/tle/tle.txt");
-                    if (file.exists()) {
-                        String lineOne = "";
-                        String lineTwo = "";
-                        final Scanner scanner = new Scanner(file);
-                        while (scanner.hasNextLine()) {
-                            final String lineFromFile = scanner.nextLine();
-                            String line = lineFromFile.trim().toLowerCase();
-                            String satName = satellite.getDisplayName().trim().toLowerCase();
-                            if (line.contains(satName)) {
-                                // a match!
-                                lineOne = scanner.nextLine();
-                                lineTwo = scanner.nextLine();
-                                scanner.close();
-                                break;
+                for (Satellite satellite : satellites) {
+                    if (checkCondition(facility, satellite)) {
+
+                        File file = new File("src/resource/tle/tle.txt");
+                        if (file.exists()) {
+                            String lineOne = "";
+                            String lineTwo = "";
+                            String satName = "";
+                            final Scanner scanner = new Scanner(file);
+                            while (scanner.hasNextLine()) {
+                                final String lineFromFile = scanner.nextLine();
+                                String line = lineFromFile.trim().toLowerCase();
+                                satName = satellite.getDisplayName().trim().toLowerCase();
+                                if (line.contains(satName)) {
+                                    // a match!
+                                    lineOne = scanner.nextLine();
+                                    lineTwo = scanner.nextLine();
+                                    scanner.close();
+                                    break;
+                                }
                             }
+
+                            // do prediction
+
+                            String[] tleString = {satName, lineOne, lineTwo};
+                            TLE tle = new TLE(tleString);
+                            GroundStationPosition position = new GroundStationPosition(facility.getLatitude().
+                                    doubleValue(), facility.getLongitude().doubleValue(), 0);
+
+                            PassPredictor passPredictor = new PassPredictor(tle, position);
+
+                            List<SatPassTime> passed = passPredictor.getPasses(calculatingDate, 24, false);
+
+                            Result result = new Result();
+                            result.setFacilityName(facility.getDisplayName());
+                            result.setDate(calculatingDate);
+
+                            List<int[]> listOfInts = new ArrayList<>();
+                            // now create results
+                            for (SatPassTime passTime : passed) {
+                                int startTime = EarthUtil.getTimeFromDate(passTime.getStartTime());
+                                int endTime = EarthUtil.getTimeFromDate(passTime.getEndTime());
+                                int[] ints = {startTime, endTime - startTime};
+                                listOfInts.add(ints);
+                            }
+
+                            result.setLine(listOfInts);
+                            results.add(result);
                         }
                     }
                 }
             }
         }
+
+        ResultDialog resultDialog = new ResultDialog(this, true);
+
+        LinePanel linePanel = new LinePanel();
+        linePanel.setBounds(0, 0, 1440, 800);
+        linePanel.setResultList(results);
+        resultDialog.add(linePanel);
+
+        resultDialog.pack();
+        resultDialog.setVisible(true);
     }
 
     private Date addDays(Date date, int days) {

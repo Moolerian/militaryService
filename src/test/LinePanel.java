@@ -21,14 +21,6 @@ public class LinePanel extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
-        Font currentFont = g2d.getFont();
-        Font newFont = currentFont.deriveFont(currentFont.getSize() * 1.2F);
-        g2d.setFont(newFont.deriveFont(Font.BOLD));
-
-        g2d.setColor(Color.GREEN);
-        g2d.drawRect(0, 70, 1440, 30);
-        g2d.fillRect(0, 70, 1440, 30);
-
         int facilityNameX = 500;
         int facilityNameY = 15;
         int calculatingDateY = 15;
@@ -36,9 +28,17 @@ public class LinePanel extends JPanel {
         int lineY = 70;
         for (Result result : resultList) {
 
+            Font currentFont = g2d.getFont();
+            Font newFont = currentFont.deriveFont(currentFont.getSize() * 1.2F);
+            g2d.setFont(newFont.deriveFont(Font.BOLD));
+
+            g2d.setColor(Color.GREEN);
+            g2d.drawRect(0, lineY, 1440, 30);
+            g2d.fillRect(0, lineY, 1440, 30);
+
             g2d.setColor(Color.BLACK);
             g2d.drawString(result.getFacilityName(), facilityNameX, facilityNameY);
-            g2d.drawString(EarthUtil.convertJulianToPersian(result.getStartDate()), calculatingDateX, calculatingDateY);
+            g2d.drawString(EarthUtil.convertJulianToPersian(result.getDate()), calculatingDateX, calculatingDateY);
 
             java.util.List<int[]> line = result.getLine();
             for (int[] ints : line) {
@@ -55,8 +55,14 @@ public class LinePanel extends JPanel {
                 g2d.drawString(String.valueOf(ints[1]), ints[0], lineY - 15);
 
             }
-            lineY += 70;
-            facilityNameY += 100;
+
+            g2d.setColor(Color.BLUE);
+            g2d.drawRect(0, facilityNameY - 30, 1440, 3);
+            g2d.fillRect(0, facilityNameY - 30 , 1440, 3);
+
+            lineY += 140;
+            facilityNameY += 145;
+            calculatingDateY+=145;
         }
 
     }
