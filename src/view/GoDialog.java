@@ -104,7 +104,7 @@ public class GoDialog extends javax.swing.JDialog {
         Double userPrefLongitude = Double.valueOf(longitude.getText());
         Double userPrefLatitude = Double.valueOf(latitude.getText());
         Position iranPosition = new Position(LatLon.fromDegrees(userPrefLatitude, userPrefLongitude), 0d);
-        view.goTo(iranPosition,150000d);
+        view.goTo(iranPosition,50000d);
     }
 
     /**

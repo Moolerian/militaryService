@@ -1,8 +1,6 @@
 package util;
 
-import model.Facility;
-import model.SatReport;
-import model.Satellite;
+import model.*;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -10,6 +8,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import view.FacilityDialog;
+import view.Root;
 
 import javax.swing.*;
 import javax.swing.table.TableModel;
@@ -20,6 +19,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+
+import static util.Constants.DB_CONNECTION;
+import static util.Constants.DB_DRIVER;
 
 /**
  * @author mohammad
@@ -63,8 +65,8 @@ public class EarthUtil {
     private static Connection connectDB() {
         Connection c = null;
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:database.db");
+            Class.forName(DB_DRIVER);
+            c = DriverManager.getConnection(DB_CONNECTION);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -518,34 +520,35 @@ public class EarthUtil {
         return calendar;
     }
 
-    public static void writeToExcell(JTable table) throws IOException {
-        new WorkbookFactory();
-        Workbook wb = new XSSFWorkbook(); //Excell workbook
-        Sheet sheet = wb.createSheet(); //WorkSheet
-        Row row = sheet.createRow(2); //Row created at line 3
-        TableModel model = table.getModel(); //Table model
+    public static void writeToExcell(List data) throws IOException {
+//        new WorkbookFactory();
+//        Workbook wb = new XSSFWorkbook(); //Excel workbook
+//        Sheet sheet = wb.createSheet(); //WorkSheet
+//
+//
+//        Row headerRow = sheet.createRow(0);
+//        for (int headings = 0; headings < Constants.HEADER_ROW_COUNT; headings++) {
+//            headerRow.createCell(headings).setCellValue(Constants.HEADER_NAME[headings]);
+//        }
+//
+//        for (int index = 1; index <= Root.exportResultList.size(); index++) {
+//            ExportResult exportResult = Root.exportResultList.get(index - 1);
+//            Row row = sheet.createRow(index);
+//            row.createCell(0).setCellValue(index);
+//            row.createCell(1).setCellValue(exportResult.getFacilityName());
+//            row.createCell(2).setCellValue(exportResult.getSatName());
+//            row.createCell(3).setCellValue(exportResult.getCalculatingDate());
+//            row.createCell(4).setCellValue(exportResult.getStartTime());
+//            row.createCell(5).setCellValue(exportResult.getEndTime());
+//        }
+//
+//        JFileChooser chooser = new JFileChooser();
+//        chooser.setSelectedFile(new File(System.getProperty("user.dir"))); // user will see this name during download
+//        if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(null)) {
+//            wb.write(new FileOutputStream(chooser.getSelectedFile() + ".xlsx"));//Save the file
+//        }
 
-
-        Row headerRow = sheet.createRow(0); //Create row at line 0
-        for (int headings = 0; headings < model.getColumnCount(); headings++) { //For each column
-            headerRow.createCell(headings).setCellValue(model.getColumnName(headings));//Write column name
-        }
-
-        for (int rows = 0; rows < model.getRowCount(); rows++) { //For each table row
-            for (int cols = 0; cols < table.getColumnCount(); cols++) { //For each table column
-                row.createCell(cols).setCellValue((model.getValueAt(rows, cols) != null)
-                        ? model.getValueAt(rows, cols).toString() : ""); //Write value
-            }
-
-            //Set the row to the next one in the sequence
-            row = sheet.createRow((rows + 3));
-        }
-
-        JFileChooser chooser = new JFileChooser();
-        chooser.setSelectedFile(new File(System.getProperty("user.dir"))); // user will see this name during download
-        if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(null)) {
-            wb.write(new FileOutputStream(chooser.getSelectedFile() + ".xlsx"));//Save the file
-        }
+        JOptionPane.showMessageDialog(null,"به زودی این امکان فراهم خواهد شد");
     }
 
 }

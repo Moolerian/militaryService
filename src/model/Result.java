@@ -7,10 +7,11 @@ import java.util.List;
 /**
  * @author mohammad
  */
+@Deprecated
 public class Result implements Serializable {
 
     private String facilityName;
-    private String satName;
+    private List<String> satName;
     private Date date;
     private Date startDate;
     private Date endDate;
@@ -24,11 +25,11 @@ public class Result implements Serializable {
         this.facilityName = facilityName;
     }
 
-    public String getSatName() {
+    public List<String> getSatName() {
         return satName;
     }
 
-    public void setSatName(String satName) {
+    public void setSatName(List<String> satName) {
         this.satName = satName;
     }
 

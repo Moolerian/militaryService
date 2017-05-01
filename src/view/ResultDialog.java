@@ -1,13 +1,15 @@
 package view;
 
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.Calendar;
 
 /**
  * @author Mohammad
  */
 @SuppressWarnings({"FieldCanBeLocal", "UnusedParameters"})
-class ResultDialog extends javax.swing.JDialog {
+public class ResultDialog extends javax.swing.JDialog {
 
     /**
      * Creates new form ResultDialog
@@ -27,18 +29,32 @@ class ResultDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">
     private void initComponents() {
 
-        saveAsExcel = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JSeparator();
+        closeButton = new javax.swing.JButton();
+        settingButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setModal(true);
-        setModalityType(java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
-        setPreferredSize(new java.awt.Dimension(1440, 850));
-        setType(java.awt.Window.Type.UTILITY);
+        setAlwaysOnTop(true);
+        setAutoRequestFocus(false);
+        setBackground(new java.awt.Color(71, 95, 133));
+        setFocusCycleRoot(false);
+        setFocusableWindowState(false);
+        setLocation(new java.awt.Point(1100, 150));
+        setUndecorated(true);
+        setPreferredSize(new java.awt.Dimension(410, 630));
+        setResizable(false);
 
-        saveAsExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/excel-icon.png"))); // NOI18N
-        saveAsExcel.addActionListener(new java.awt.event.ActionListener() {
+        closeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/exitt.png"))); // NOI18N
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveAsExcelActionPerformed(evt);
+                closeButtonActionPerformed(evt);
+            }
+        });
+
+        settingButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/Setting-Small.png"))); // NOI18N
+        settingButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingButtonActionPerformed(evt);
             }
         });
 
@@ -46,27 +62,51 @@ class ResultDialog extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 1375, Short.MAX_VALUE)
-                                .addComponent(saveAsExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jSeparator2)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(settingButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
+                                .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
         );
         layout.setVerticalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 725, Short.MAX_VALUE)
-                                .addComponent(saveAsExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(settingButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(456, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>
 
-    private void saveAsExcelActionPerformed(java.awt.event.ActionEvent evt) {
 
-//        try {
-//            EarthUtil.writeToExcell(resultTable);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        int confirmed = JOptionPane.showConfirmDialog(null,
+                "آیا تمایل دارید محاسبات ذخیره شود ؟", "خروج",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirmed == JOptionPane.YES_OPTION) {
+            this.setVisible(false);
+        } else {
+            Root.resultDialog = new ResultDialog(null, false);
+            this.setVisible(false);
+        }
+    }
+
+    private void settingButtonActionPerformed(java.awt.event.ActionEvent evt) {
+
+        SettingDialog settingDialog = new SettingDialog(null, false);
+
+        Root.resultDialog.setVisible(false);
+
+        settingDialog.setVisible(true);
+
     }
 
     public static void main(String args[]) {
@@ -93,24 +133,47 @@ class ResultDialog extends javax.swing.JDialog {
         }
         //</editor-fold>
 
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ResultDialog dialog = new ResultDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
+        ResultDialog dialog = new ResultDialog(null, true);
+
+        JPanel panel = new JPanel(new GridLayout(100, 1));
+
+        for (int i = 0; i < 100; i++) {
+
+            JPanel panel1 = new JPanel(new GridLayout(1, 1));
+
+            ResultPanel resultPanel = new ResultPanel();
+            Color color = new Color(71, 95, 133);
+            resultPanel.setColor(color);
+            resultPanel.sat.setText("RSDK-ONE");
+            resultPanel.pic.setIcon(new javax.swing.ImageIcon(dialog.getClass().getResource("/resource/" + "RSDK-ONE" + ".png")));
+
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MINUTE, 2);
+            resultPanel.setStartDate(cal.getTime());
+            resultPanel.time.setText("1395/02/01  13:28:40 - 13:31:20 ");
+
+            resultPanel.run();
+
+            panel1.add(resultPanel);
+            panel.add(panel1);
+
+        }
+
+        JScrollPane scrollPane = new JScrollPane(panel);
+
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBounds(5, 30, 400, 540);
+
+        dialog.add(scrollPane);
+
+        dialog.setVisible(true);
     }
 
-
     // Variables declaration - do not modify
-    private javax.swing.JButton saveAsExcel;
+    private javax.swing.JButton closeButton;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JButton settingButton;
     // End of variables declaration
 
 }

@@ -1,24 +1,19 @@
 package view;
 
-import gov.nasa.worldwind.Configuration;
+import com.github.amsacode.predict4java.GroundStationPosition;
+import com.github.amsacode.predict4java.PassPredictor;
+import com.github.amsacode.predict4java.SatPassTime;
+import com.github.amsacode.predict4java.TLE;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
-import model.Facility;
-import model.Result;
-import model.SatReport;
-import model.Satellite;
+import model.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import test.LinePanel;
-import uk.me.g4dpz.satellite.GroundStationPosition;
-import uk.me.g4dpz.satellite.PassPredictor;
-import uk.me.g4dpz.satellite.SatPassTime;
-import uk.me.g4dpz.satellite.TLE;
 import util.EarthUtil;
 import util.WWJUtil;
 
@@ -30,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -42,6 +38,7 @@ import java.util.List;
 public class Root extends JFrame implements Runnable {
     private static final long serialVersionUID = -5720473795150511569L;
     private Facility facility = null;
+    public static List<ExportResult> exportResultList;
 
     static {
         try {
@@ -55,9 +52,9 @@ public class Root extends JFrame implements Runnable {
             Logging.logger().severe(message);
         }
 
-        Configuration.setValue(
-                "gov.nasa.worldwind.avkey.DataFileStoreConfigurationFileName",
-                "src/resource/CacheLocationConfiguration.xml");
+//        Configuration.setValue(
+//                "gov.nasa.worldwind.avkey.DataFileStoreConfigurationFileName",
+//                "src/resource/CacheLocationConfiguration.xml");
     }
 
     /**
@@ -68,8 +65,6 @@ public class Root extends JFrame implements Runnable {
         this.setExtendedState(MAXIMIZED_BOTH);
         Thread thread = new Thread(this);
         thread.start();
-
-
     }
 
     /**
@@ -90,9 +85,12 @@ public class Root extends JFrame implements Runnable {
         }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Root().setVisible(true);
+                Root root = new Root();
+                root.setVisible(true);
             }
         });
+
+
     }
 
     @Override
@@ -884,40 +882,6 @@ public class Root extends JFrame implements Runnable {
     private void runPassPredictionActionPerformed(java.awt.event.ActionEvent evt) {
         if (facilityList.getModel().getSize() != 0) {
             try {
-
-//                List<Result> results = new ArrayList<>();
-//
-//                Date now = new Date();
-//
-//                Date tomorrow = addDays(now, 1);
-//
-//                Result result = new Result();
-//                result.setSatName("NOAA");
-//                result.setFacilityName("توپ");
-//                result.setDate(tomorrow);
-//                int[] a = {EarthUtil.getTimeFromDate(now), 5};
-//                int[] b = {325, 12};
-//                int[] c = {590, 18};
-//                int[] d = {950, 1};
-//                List<int[]> list = new ArrayList<>();
-//                list.add(a);
-//                list.add(b);
-//                list.add(c);
-//                list.add(d);
-//                result.setLine(list);
-//
-//                results.add(result);
-//
-//                ResultDialog resultDialog = new ResultDialog(this, true);
-//
-//                LinePanel linePanel = new LinePanel();
-//                linePanel.setBounds(0, 0, 1440, 800);
-//                linePanel.setResultList(results);
-//                resultDialog.add(linePanel);
-//
-//                resultDialog.pack();
-//                resultDialog.setVisible(true);
-
                 passPrediction();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "لطفا برنامه ببندید و مجدد اجرا کنید.", "نا موفق", JOptionPane.ERROR_MESSAGE);
@@ -928,19 +892,20 @@ public class Root extends JFrame implements Runnable {
         }
     }
 
+    public static ResultDialog resultDialog = new ResultDialog(null, false);
+
+    @SuppressWarnings("Duplicates")
     private void passPrediction() throws Exception {
         int countFacilities = facilityList.getModel().getSize();
         ListModel<Facility> facilities = facilityList.getModel();
         List<Satellite> satellites = EarthUtil.getSatellites();
-        List<Result> results = new ArrayList<>();
-
+        JPanel centeredPanel;
+        List<ExtendedSatPassTime> allPasses = new ArrayList<>();
         for (int index = 0; index < countFacilities; index++) {
             Facility facility = facilities.getElementAt(index);
             double timeSpanDays = EarthUtil.daysBetween(facility.getStartDate(), facility.getEndDate());
-
             for (int i = 0; i < timeSpanDays; i++) {
                 Date calculatingDate = addDays(facility.getStartDate(), i);
-
                 for (Satellite satellite : satellites) {
                     if (checkCondition(facility, satellite)) {
 
@@ -965,46 +930,123 @@ public class Root extends JFrame implements Runnable {
 
                             // do prediction
 
-                            String[] tleString = {satName, lineOne, lineTwo};
-                            TLE tle = new TLE(tleString);
-                            GroundStationPosition position = new GroundStationPosition(facility.getLatitude().
-                                    doubleValue(), facility.getLongitude().doubleValue(), 0);
+                            if (lineOne.length() > 0 && lineTwo.length() > 0 && satName.length() > 0) {
 
-                            PassPredictor passPredictor = new PassPredictor(tle, position);
+                                String[] tleString = {satName, lineOne, lineTwo};
+                                TLE tle = new TLE(tleString);
 
-                            List<SatPassTime> passed = passPredictor.getPasses(calculatingDate, 24, false);
+                                GroundStationPosition position = new GroundStationPosition(35, 51, 0);
+                                PassPredictor passPredictor = new PassPredictor(tle, position);
+                                List<SatPassTime> passed = passPredictor.getPasses(calculatingDate, 24, false);
+                                // now create results
+                                // result for one facility and first satellite and the first day of calculating
+                                for (SatPassTime passTime : passed) {
+                                    ExtendedSatPassTime extendedSatPassTime = new ExtendedSatPassTime();
+                                    extendedSatPassTime.setSatName(satName);
+                                    extendedSatPassTime.setStartTime(passTime.getStartTime());
+                                    extendedSatPassTime.setEndTime(passTime.getEndTime());
+                                    extendedSatPassTime.setTca(passTime.getTCA());
+                                    extendedSatPassTime.setMaxEl(passTime.getMaxEl());
+                                    extendedSatPassTime.setAos(passTime.getAosAzimuth());
+                                    extendedSatPassTime.setLos(passTime.getLosAzimuth());
+                                    extendedSatPassTime.setPolePassed(passTime.getPolePassed());
+                                    extendedSatPassTime.setFacilityName(facility.getDisplayName());
+                                    extendedSatPassTime.setPassPredictor(passPredictor);
+                                    allPasses.add(extendedSatPassTime);
+                                }
 
-                            Result result = new Result();
-                            result.setFacilityName(facility.getDisplayName());
-                            result.setDate(calculatingDate);
-
-                            List<int[]> listOfInts = new ArrayList<>();
-                            // now create results
-                            for (SatPassTime passTime : passed) {
-                                int startTime = EarthUtil.getTimeFromDate(passTime.getStartTime());
-                                int endTime = EarthUtil.getTimeFromDate(passTime.getEndTime());
-                                int[] ints = {startTime, endTime - startTime};
-                                listOfInts.add(ints);
                             }
-
-                            result.setLine(listOfInts);
-                            results.add(result);
                         }
                     }
+                }// next sat
+
+            }// next day
+
+        }
+
+        Collections.sort(allPasses, new Comparator<ExtendedSatPassTime>() {
+            public int compare(ExtendedSatPassTime o1, ExtendedSatPassTime o2) {
+                return o1.getStartTime().compareTo(o2.getStartTime());
+            }
+        });
+
+        for (ExtendedSatPassTime passTime : allPasses) {
+            Date now = new Date();
+            if (now.before(passTime.getStartTime())) {
+                panelIndex++;
+            }
+        }
+        centeredPanel = new JPanel(new GridLayout(panelIndex, 1));
+
+        for (ExtendedSatPassTime passTime : allPasses) {
+            colorIndex++;
+            Date now = new Date();
+            if (now.before(passTime.getStartTime())) {
+                JPanel innerPanel = new JPanel(new GridLayout(1, 1));
+
+                ResultPanel resultPanel = new ResultPanel();
+                Color color;
+                if (colorIndex % 2 == 0) {
+                    color = new Color(71, 95, 133);
+                } else {
+                    color = new Color(71, 60, 133);
                 }
+                resultPanel.setColor(color);
+                resultPanel.sat.setText(passTime.getSatName());
+
+
+                URL resource = resultDialog.getClass().getResource("/resource/" + passTime.getSatName() + ".png");
+
+                if (resource == null) {
+                    resource = resultDialog.getClass().getResource("/resource/" + "RSDK-ONE" + ".png");
+                }
+
+                resultPanel.pic.setIcon(new javax.swing.ImageIcon(resource));
+
+                resultPanel.setStartDate(passTime.getStartTime());
+                SimpleDateFormat localDateFormat = new SimpleDateFormat("HH:mm:ss");
+
+                String time = EarthUtil.convertJulianToPersianForUi(passTime.getStartTime()) +
+                        " - " +
+                        localDateFormat.format(passTime.getStartTime()) +
+                        "- " +
+                        localDateFormat.format(passTime.getEndTime());
+                resultPanel.time.setText(time);
+
+                SatPassDetails satPassDetails = new SatPassDetails();
+                satPassDetails.setAos(passTime.getAos());
+                satPassDetails.setLos(passTime.getLos());
+                satPassDetails.setTca(passTime.getTca().toString());
+                satPassDetails.setEndTime(localDateFormat.format(passTime.getEndTime()));
+                satPassDetails.setStartTime(localDateFormat.format(passTime.getStartTime()));
+                satPassDetails.setSatName(passTime.getSatName());
+                satPassDetails.setFacilityName(passTime.getFacilityName());
+                satPassDetails.setMaxEl(passTime.getMaxEl());
+                satPassDetails.setPolePassed(passTime.getPolePassed());
+                satPassDetails.setPassPredictor(passTime.getPassPredictor());
+
+                resultPanel.setSatPassDetails(satPassDetails);
+
+                resultPanel.run();
+                innerPanel.add(resultPanel);
+                centeredPanel.add(innerPanel);
             }
         }
 
-        ResultDialog resultDialog = new ResultDialog(this, true);
 
-        LinePanel linePanel = new LinePanel();
-        linePanel.setBounds(0, 0, 1440, 800);
-        linePanel.setResultList(results);
-        resultDialog.add(linePanel);
+        JScrollPane scrollPane = new JScrollPane(centeredPanel);
 
-        resultDialog.pack();
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBounds(5, 60, 400, 540);
+
+        resultDialog.add(scrollPane);
         resultDialog.setVisible(true);
+
     }
+
+    int panelIndex = 0;
+    int colorIndex = 0;
 
     private Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
