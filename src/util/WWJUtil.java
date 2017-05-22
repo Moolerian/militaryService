@@ -54,7 +54,7 @@ public class WWJUtil {
         new BalloonController(wwj);
         Position position;
         String balloonText;
-        if (facility.getLatitude() == null || facility.getLongitude() == null) {
+        if (facility.getLatitude() == 0 || facility.getLongitude() == 0) {
             position = new Position(LatLon.fromDegrees(iranLat, iranLon), 0d);
             balloonText = "name :  " + facility.getDisplayName() + "lat: " + iranLat + " lon : " + iranLon +
                     " width: " + " not-defined" + " Length: " + "not-defined";

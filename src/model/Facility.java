@@ -13,17 +13,11 @@ public class Facility implements Serializable {
 
     private String displayName;
 
-    private Long latitude;
+    private float latitude;
 
-    private Long longitude;
+    private float longitude;
 
-    private Integer facilityOne;
-
-    private Integer facilityTwo;
-
-    private Integer facilityThree;
-
-    private Integer facilityFour;
+    private double area;
 
     private Date startDate;
 
@@ -61,52 +55,28 @@ public class Facility implements Serializable {
         this.displayName = displayName;
     }
 
-    public Long getLatitude() {
+    public float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Long latitude) {
+    public void setLatitude(float latitude) {
         this.latitude = latitude;
     }
 
-    public Long getLongitude() {
+    public float getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Long longitude) {
+    public void setLongitude(float longitude) {
         this.longitude = longitude;
     }
 
-    public Integer getFacilityOne() {
-        return facilityOne;
+    public double getArea() {
+        return area;
     }
 
-    public void setFacilityOne(Integer facilityOne) {
-        this.facilityOne = facilityOne;
-    }
-
-    public Integer getFacilityTwo() {
-        return facilityTwo;
-    }
-
-    public void setFacilityTwo(Integer facilityTwo) {
-        this.facilityTwo = facilityTwo;
-    }
-
-    public Integer getFacilityThree() {
-        return facilityThree;
-    }
-
-    public void setFacilityThree(Integer facilityThree) {
-        this.facilityThree = facilityThree;
-    }
-
-    public Integer getFacilityFour() {
-        return facilityFour;
-    }
-
-    public void setFacilityFour(Integer facilityFour) {
-        this.facilityFour = facilityFour;
+    public void setArea(double area) {
+        this.area = area;
     }
 
     public Date getStartDate() {

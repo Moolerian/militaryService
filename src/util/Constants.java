@@ -11,5 +11,5 @@ public class Constants {
     // static variables for showing alerts
     public static int ALERT_TIME = 5;
     public static String ALERT_MESSAGE = "خطر نزدیک است";
-    public static boolean ALERT_STATUS = false ;
+    public static boolean ALERT_STATUS = true ;
 }

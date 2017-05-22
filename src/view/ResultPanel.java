@@ -1,15 +1,15 @@
 package view;
 
 
-import com.github.amsacode.predict4java.SatNotFoundException;
 import com.github.amsacode.predict4java.SatPos;
 import gov.nasa.worldwind.View;
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.IconLayer;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.*;
-import gov.nasa.worldwind.util.WWUtil;
 import model.SatPassDetails;
 import util.Constants;
 import util.WWJUtil;
@@ -21,21 +21,28 @@ import java.util.Timer;
 
 public class ResultPanel extends javax.swing.JPanel {
 
-    private ArrayList<Position> positions;
     private final Polyline line;
     private RenderableLayer lineLayer;
+
+    private Date startDate;
+    private Timer scheduleTimer;
+    private SatPassDetails satPassDetails;
+
+    private boolean showSatMovement = true;
+    private final IconLayer iconLayer = new IconLayer();
+    private ShapeAttributes attrs = new BasicShapeAttributes();
+    private Cone shape;
+    private RenderableLayer surfaceLayer = new RenderableLayer();
 
     /**
      * Creates new form ResultPanel
      */
-    public ResultPanel() {
+    ResultPanel() {
         line = new Polyline();
         line.setFollowTerrain(true);
 
         this.lineLayer = new RenderableLayer();
         this.lineLayer.addRenderable(this.line);
-
-        positions = new ArrayList<>();
 
         initComponents();
 
@@ -172,98 +179,59 @@ public class ResultPanel extends javax.swing.JPanel {
 
     }
 
-    private boolean showSatMovement = true;
-    private final IconLayer iconLayer = new IconLayer();
-    private ShapeAttributes attrs = new BasicShapeAttributes();
-    private SurfaceShape shape;
-    private RenderableLayer surfaceLayer = new RenderableLayer();
-
     private void lineToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {
         JToggleButton tBtn = (JToggleButton) evt.getSource();
         final Thread thread;
         if (tBtn.isSelected()) {
             WWJUtil.getWwj().getModel().getLayers().remove(lineLayer);
-            positions = new ArrayList<>();
             showSatMovement = true;
-            try {
-                Calendar time = Calendar.getInstance();
-                time.add(Calendar.MINUTE, -5);
 
-                SatPos satPosBefore = satPassDetails.getPassPredictor().getSatPos(time.getTime());
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (showSatMovement) {
+                        try {
+                         //   UserFacingIcon icon;
+                            // now for icon in a while loop
+                            while (showSatMovement) {
+                                WWJUtil.getWwj().getModel().getLayers().remove(surfaceLayer);
+                                surfaceLayer.removeAllRenderables();
 
-                time = Calendar.getInstance();
-                time.add(Calendar.MINUTE, 10);
+                                Calendar time = Calendar.getInstance();
+                                SatPos satPosNow = satPassDetails.getPassPredictor().getSatPos(time.getTime());
+                                double longitude = satPosNow.getLongitude() / 6.283185307179586D * 360.0D;
+                                Position satPosition = new Position(LatLon.fromDegrees(satPosNow.getLatitude() / 6.283185307179586D * 360.0D,
+                                        (longitude > 180) ? longitude - 360 : longitude), 0d);
+                                gSatPosition = satPosition;
+                                showSatButton.setEnabled(true);
+                                attrs = new BasicShapeAttributes();
+                                attrs.setInteriorMaterial(Material.GREEN);
+                                attrs.setInteriorOpacity(0.7);
+                                attrs.setEnableLighting(true);
+                                attrs.setDrawInterior(true);
+                                attrs.setDrawOutline(false);
 
-                SatPos satPosAfter = satPassDetails.getPassPredictor().getSatPos(time.getTime());
+                                shape = new Cone(satPosition, satPassDetails.getMaxEl() * 1000,
+                                        satPassDetails.getPassPredictor().getWidthPassage() * 1000);
 
-                double longitude = satPosBefore.getLongitude() / 6.283185307179586D * 360.0D;
-                Position firstPosition = new Position(LatLon.fromDegrees(satPosBefore.getLatitude() / 6.283185307179586D * 360.0D,
-                        (longitude > 180) ? longitude - 360 : longitude), 0d);
-
-                longitude = satPosAfter.getLongitude() / 6.283185307179586D * 360.0D;
-                Position secondPosition = new Position(LatLon.fromDegrees(satPosAfter.getLatitude() / 6.283185307179586D * 360.0D,
-                        (longitude > 180) ? longitude - 360 : longitude), 0d);
-
-                positions.add(firstPosition);
-                positions.add(secondPosition);
-                line.setPositions(positions);
-                line.setLineWidth(10);
-                WWJUtil.getWwj().firePropertyChange("LineBuilder.AddPosition", null, firstPosition);
-
-                WWJUtil.getWwj().getModel().getLayers().add(lineLayer);
-
-                thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (showSatMovement) {
-                            try {
-                                UserFacingIcon icon;
-                                // now for icon in a while loop
-                                while (showSatMovement) {
-                                    iconLayer.removeAllIcons();
-                                    WWJUtil.getWwj().getModel().getLayers().remove(iconLayer);
-                                    WWJUtil.getWwj().getModel().getLayers().remove(surfaceLayer);
-                                    surfaceLayer.removeAllRenderables();
-                                    Calendar time = Calendar.getInstance();
-                                    SatPos satPosNow = satPassDetails.getPassPredictor().getSatPos(time.getTime());
-                                    double longitude = satPosNow.getLongitude() / 6.283185307179586D * 360.0D;
-                                    Position satPosition = new Position(LatLon.fromDegrees(satPosNow.getLatitude() / 6.283185307179586D * 360.0D,
-                                            (longitude > 180) ? longitude - 360 : longitude), 0d);
-                                    gSatPosition = satPosition;
-                                    showSatButton.setEnabled(true);
-                                    icon = new UserFacingIcon("src/resource/" + "satellite-Small" + ".png", satPosition);
-                                    iconLayer.addIcon(icon);
-                                    WWJUtil.getWwj().getModel().getLayers().add(iconLayer);
-
-                                    attrs = new BasicShapeAttributes();
-                                    attrs.setInteriorMaterial(Material.GREEN);
-                                    attrs.setOutlineMaterial(new Material(WWUtil.makeColorBrighter(Color.GREEN)));
-                                    attrs.setInteriorOpacity(0.3);
-                                    attrs.setOutlineOpacity(0.5);
-                                    attrs.setOutlineWidth(5);
-
-                                    shape = new SurfaceCircle(LatLon.fromDegrees(satPosNow.getLatitude() / 6.283185307179586D * 360.0D
-                                            , (longitude > 180) ? longitude - 360 : longitude), 2600000);
-                                    shape.setAttributes(attrs);
-                                    surfaceLayer.addRenderable(shape);
-                                    WWJUtil.getWwj().getModel().getLayers().add(surfaceLayer);
-                                    Thread.sleep(150);
-                                }
-                            } catch (Exception e) {
-                                JOptionPane.showMessageDialog(null, "خطایی در نمایش مدار رخ داده است");
+                                shape.setAttributes(attrs);
+                                shape.setAltitudeMode(WorldWind.ABSOLUTE);
+                                shape.setVisible(true);
+                                shape.setValue(AVKey.DISPLAY_NAME, "Cone with equal axes, ABSOLUTE altitude mode");
+                                surfaceLayer.addRenderable(shape);
+                                WWJUtil.getWwj().getModel().getLayers().add(surfaceLayer);
+                                Thread.sleep(150);
                             }
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(null, "خطایی در نمایش مدار رخ داده است");
                         }
                     }
-                });
+                }
+            });
 
-                thread.start();
-
-            } catch (SatNotFoundException e) {
-                JOptionPane.showMessageDialog(null, "خطایی در نمایش مدار رخ داده است");
-            }
+            thread.start();
         } else {
             WWJUtil.getWwj().getModel().getLayers().remove(lineLayer);
-            positions = new ArrayList<>();
             showSatMovement = false;
             iconLayer.removeAllIcons();
             WWJUtil.getWwj().getModel().getLayers().remove(iconLayer);
@@ -276,14 +244,14 @@ public class ResultPanel extends javax.swing.JPanel {
 
     private void showSatButtonActionPerformed(java.awt.event.ActionEvent evt) {
         View view = WWJUtil.getWwj().getView();
-        view.goTo(gSatPosition, 8000000d);
+        view.goTo(gSatPosition, 800000d);
     }
 
     public void setColor(Color color) {
         setBackground(color);
     }
 
-    public void run() {
+    void run() {
         scheduleTimer = new Timer();
 
         scheduleTimer.scheduleAtFixedRate(new TimerTask() {
@@ -308,17 +276,16 @@ public class ResultPanel extends javax.swing.JPanel {
 
         if (Constants.ALERT_STATUS) {
             if (diffHours == 0 && diffMinutes <= Constants.ALERT_TIME && !alertHasBeenShown) {
-                StringBuilder content = new StringBuilder(" کمتر از ");
-                content.append(diffMinutes);
-                content.append(" دقیقه دیگر ماهواره ");
-                content.append(satPassDetails.getSatName());
-                content.append(" تجهییز ");
-                content.append(satPassDetails.getFacilityName());
-                content.append(" را رویت میکند ");
+                String content = " کمتر از " + diffMinutes +
+                        " دقیقه دیگر ماهواره " +
+                        satPassDetails.getSatName() +
+                        " تجهییز " +
+                        satPassDetails.getFacilityName() +
+                        " را رویت میکند ";
 
-                AlertDialog alertDialog = new AlertDialog(null,false);
+                AlertDialog alertDialog = new AlertDialog(null, false);
                 alertDialog.setTitle(Constants.ALERT_MESSAGE);
-                alertDialog.setContent(content.toString());
+                alertDialog.setContent(content);
                 alertHasBeenShown = true;
                 alertDialog.setVisible(true);
             }
@@ -337,15 +304,11 @@ public class ResultPanel extends javax.swing.JPanel {
         }
     }
 
-    private Date startDate;
-    private Timer scheduleTimer;
-    private SatPassDetails satPassDetails;
-
-    public void setSatPassDetails(SatPassDetails satPassDetails) {
+    void setSatPassDetails(SatPassDetails satPassDetails) {
         this.satPassDetails = satPassDetails;
     }
 
-    public void setStartDate(Date startDate) {
+    void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 

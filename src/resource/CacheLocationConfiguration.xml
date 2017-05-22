@@ -11,15 +11,15 @@
     <readLocations>
         <!-- The read locations are searched, in the given order, when World Wind needs a data or image file. -->
         <!-- The write location selected from the writeLocations list is searched before these locations. -->
-        <location property="gov.nasa.worldwind.platform.alluser.store" wwDir="./MyCache"/>
-        <location property="gov.nasa.worldwind.platform.user.store"    wwDir="./MyCache"/>
-        <location property="user.dir"  wwDir="./MyCache"/>
-        <location property="user.home" wwDir="./MyCache"/>
+        <location property="gov.nasa.worldwind.platform.alluser.store" wwDir="MyCache"/>
+        <location property="gov.nasa.worldwind.platform.user.store"    wwDir="MyCache"/>
+        <location property="user.dir"  wwDir="MyCache"/>
+        <location property="user.home" wwDir="MyCache"/>
         <!-- The standard install locations are searched after the standard read locations. -->
-        <location property="gov.nasa.worldwind.platform.alluser.store" wwDir="./MyCache" isInstall="true" isMarkWhenUsed="true"/>
-        <location property="gov.nasa.worldwind.platform.user.store"    wwDir="./MyCache" isInstall="true" isMarkWhenUsed="true"/>
-        <location property="user.dir"  wwDir="./MyCache" isInstall="true" isMarkWhenUsed="true"/>
-        <location property="user.home" wwDir="./MyCache" isInstall="true" isMarkWhenUsed="true"/>
+        <location property="gov.nasa.worldwind.platform.alluser.store" wwDir="MyCache" isInstall="true" isMarkWhenUsed="true"/>
+        <location property="gov.nasa.worldwind.platform.user.store"    wwDir="MyCache" isInstall="true" isMarkWhenUsed="true"/>
+        <location property="user.dir"  wwDir="MyCache" isInstall="true" isMarkWhenUsed="true"/>
+        <location property="user.home" wwDir="MyCache" isInstall="true" isMarkWhenUsed="true"/>
     </readLocations>
     <writeLocations>
         <!-- The first writable location in this list is used as the session's data and image file store. -->

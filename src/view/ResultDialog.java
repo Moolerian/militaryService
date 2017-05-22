@@ -31,16 +31,15 @@ public class ResultDialog extends javax.swing.JDialog {
 
         jSeparator2 = new javax.swing.JSeparator();
         closeButton = new javax.swing.JButton();
-        settingButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setAlwaysOnTop(true);
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(71, 95, 133));
         setFocusCycleRoot(false);
+        setFocusable(false);
         setFocusableWindowState(false);
         setLocation(new java.awt.Point(1100, 150));
-        setUndecorated(true);
         setPreferredSize(new java.awt.Dimension(410, 630));
         setResizable(false);
 
@@ -51,22 +50,13 @@ public class ResultDialog extends javax.swing.JDialog {
             }
         });
 
-        settingButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/Setting-Small.png"))); // NOI18N
-        settingButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                settingButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jSeparator2)
                         .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(settingButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
+                                .addContainerGap(342, Short.MAX_VALUE)
                                 .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap())
         );
@@ -74,9 +64,7 @@ public class ResultDialog extends javax.swing.JDialog {
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(settingButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap(456, Short.MAX_VALUE))
@@ -173,7 +161,6 @@ public class ResultDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify
     private javax.swing.JButton closeButton;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JButton settingButton;
     // End of variables declaration
 
 }

@@ -10,15 +10,15 @@ public class Satellite implements Serializable {
 
     private String displayName;
 
-    private Integer satelliteOne;
+    private double satelliteOne;
 
-    private Integer satelliteTwo;
+    private double satelliteTwo;
 
-    private Integer satelliteThree;
+    private double satelliteThree;
 
-    private Integer satelliteFour;
+    private String satelliteFour;
 
-    public Satellite(String displayName, Integer satelliteOne, Integer satelliteTwo, Integer satelliteThree, Integer satelliteFour) {
+    public Satellite(String displayName, double satelliteOne, double satelliteTwo, double satelliteThree, String satelliteFour) {
         this.displayName = displayName;
         this.satelliteOne = satelliteOne;
         this.satelliteTwo = satelliteTwo;
@@ -45,35 +45,35 @@ public class Satellite implements Serializable {
         this.displayName = displayName;
     }
 
-    public Integer getSatelliteOne() {
+    public double getSatelliteOne() {
         return satelliteOne;
     }
 
-    public void setSatelliteOne(Integer satelliteOne) {
+    public void setSatelliteOne(double satelliteOne) {
         this.satelliteOne = satelliteOne;
     }
 
-    public Integer getSatelliteTwo() {
+    public double getSatelliteTwo() {
         return satelliteTwo;
     }
 
-    public void setSatelliteTwo(Integer satelliteTwo) {
+    public void setSatelliteTwo(double satelliteTwo) {
         this.satelliteTwo = satelliteTwo;
     }
 
-    public Integer getSatelliteThree() {
+    public double getSatelliteThree() {
         return satelliteThree;
     }
 
-    public void setSatelliteThree(Integer satelliteThree) {
+    public void setSatelliteThree(double satelliteThree) {
         this.satelliteThree = satelliteThree;
     }
 
-    public Integer getSatelliteFour() {
+    public String getSatelliteFour() {
         return satelliteFour;
     }
 
-    public void setSatelliteFour(Integer satelliteFour) {
+    public void setSatelliteFour(String satelliteFour) {
         this.satelliteFour = satelliteFour;
     }
 }

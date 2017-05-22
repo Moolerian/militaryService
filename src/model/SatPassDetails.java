@@ -1,15 +1,12 @@
 package model;
 
-import com.github.amsacode.predict4java.PassPredictor;
-
-import java.util.Date;
+import util.ExtendedPassPredictor;
 
 /**
  * @author mohammad
  */
 public class SatPassDetails {
 
-    // details variables
     public String getSatName() {
         return satName;
     }
@@ -82,14 +79,15 @@ public class SatPassDetails {
         this.tca = tca;
     }
 
-    public PassPredictor getPassPredictor() {
+    public ExtendedPassPredictor getPassPredictor() {
         return passPredictor;
     }
 
-    public void setPassPredictor(PassPredictor passPredictor) {
+    public void setPassPredictor(ExtendedPassPredictor passPredictor) {
         this.passPredictor = passPredictor;
     }
 
+    // details variables
     private String satName;
     private String facilityName;
     private String endTime;
@@ -99,8 +97,6 @@ public class SatPassDetails {
     private int aos;
     private int los;
     private double maxEl;
-    private PassPredictor passPredictor;
-
-
+    private ExtendedPassPredictor passPredictor;
     //end of these variables
 }

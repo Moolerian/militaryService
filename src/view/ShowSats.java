@@ -6,20 +6,17 @@ import util.EarthUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Objects;
 
-public class ShowSats extends javax.swing.JDialog {
+class ShowSats extends javax.swing.JDialog {
 
     /**
      * Creates new form ShowSats
      */
-    public ShowSats(java.awt.Frame parent, boolean modal) {
+    ShowSats(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -44,11 +41,11 @@ public class ShowSats extends javax.swing.JDialog {
 
                 },
                 new String [] {
-                        "عملیات", "قدرت تفکیک", "نام ماهواره"
+                        "عملیات", "قدرت تفکیک", "نام ماهواره", "عرض گذر", "tilt", "دسته بندی"
                 }
         ) {
             boolean[] canEdit = new boolean [] {
-                    false, false, false
+                    false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -90,7 +87,6 @@ public class ShowSats extends javax.swing.JDialog {
         pack();
     }// </editor-fold>
 
-    @SuppressWarnings("Duplicates")
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {
         String satName = searchTextField.getText();
         if(!Objects.equals(satName, "")) {
@@ -101,41 +97,15 @@ public class ShowSats extends javax.swing.JDialog {
             Satellite sat = EarthUtil.findByName(satName);
             if(sat!=null) {
 
-                Object[] raw = new Object[4];
+                Object[] raw = new Object[6];
                 raw[2] = sat.getDisplayName();
-                String satOne = "";
-                switch (sat.getSatelliteOne()) {
-                    case 0:
-                        satOne = "بیش از 9 متر";
-                        break;
-                    case 1:
-                        satOne = "بین 4.5 تا 9 متر";
-                        break;
-                    case 2:
-                        satOne = "بین 2.5 تا 4.5 متر";
-                        break;
-                    case 3:
-                        satOne = "بین 1.2 تا 2.5 متر";
-                        break;
-                    case 4:
-                        satOne = "بین 0.75 تا 1.2 متر";
-                        break;
-                    case 5:
-                        satOne = "بین 0.4 تا 0.75 متر";
-                        break;
-                    case 6:
-                        satOne = "بین 0.2 تا 0.4 متر";
-                        break;
-                    case 7:
-                        satOne = "بین 0.1 تا 0.2 متر";
-                        break;
-                    case 8:
-                        satOne = "کمتر از 0.1 متر";
-                        break;
-                }
+                String satOne = String.valueOf(sat.getSatelliteOne());
 
                 raw[1] = satOne;
                 raw[0] = "حذف";
+                raw[3] = sat.getSatelliteTwo();
+                raw[4] = sat.getSatelliteThree();
+                raw[5] = sat.getSatelliteFour();
                 model.addRow(raw);
             }else {
                 JOptionPane.showMessageDialog(this, "موردی یافت نشد", "خطا", JOptionPane.ERROR_MESSAGE);
@@ -145,11 +115,9 @@ public class ShowSats extends javax.swing.JDialog {
         }
     }
 
-
-
     // Variables declaration - do not modify
     private javax.swing.JScrollPane jScrollPane1;
-    public javax.swing.JTable satBrowser;
+    javax.swing.JTable satBrowser;
     private javax.swing.JButton searchButton;
     private javax.swing.JTextField searchTextField;
     // End of variables declaration
